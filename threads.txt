@@ -1,0 +1,50 @@
+1. What's the difference between process and thread?
+A process is a running program, providing an execution states, along with certain resources including process id, process group id,
+pc, registers, stack, heap, code segment, data segments, file handles, socket handles, signal handler table, etc.
+While a thread is an abstraction of some execution flow in an application, which can be scheduled independently.
+A thread has it own pc, thread id, thread group id, pc, registers, stack. 
+But all threads in a process share the same code segment, data segments, heap, and resources such as file/socket handles. 
+
+2. Why creating a thread is much faster than a process?
+a. A thread has less overhead than a process, since it shares code segment, data segments, heap, etc.
+b. A thread can reside entirely in user space, so it doesn't need to context swith from user space to kernel space to create a thread.
+c. The process doesn't need to swapped out to create a thread in it.
+
+3. List the thread scheduling models and compare them
+Threads can be scheduled by the system scheduler(OS) or by a scheduler in the user library.
+It depends on the threading models. Threading models include n-to-1, 1-to-1, and n-to-m.
+For n-to-1 threading model, the threads are scheduled by a scheduler in the user library.
+For 1-to-1 threading model, the threads are scheduled by the system scheduler.
+For n-to-m threading model, the threads are scheduled by the efforts of the system scheduler and user space scheduler.
+
+For the three threding models mentioned above, we can list their advantages and disvantages from the following aspects:
+a. Context switch speed.
+b. Parallelism.
+c. The number of threads supported.
+d. Starvation.
+
+4. What's a detached thread? What's a non-detached thread?
+When a thread is detached, it means you do not care about when it exits.
+A detached thread will relinguish resources to OS immediately after it exists.
+When a non-detached thread exits, it will relinquish some resources to OS, but its thread id and exit status will hang around in
+a zombie-like state until the other thread requests for its exit status by joining it.
+
+5. When waiting for a condition, what should we be cautious?
+We should use while instead of if statement to check condition.
+That is, we should check condition after returning from wait operation to avoid "Spurious wakeup".
+In multiprocessor system, signal operation may wakeup more than one thread, this is called "Spurious wakeup".
+Although it is possible to solve "Spurious wakeup" in wait operation, but it will degrade performance greatly.
+So in some thread library implementation, wait operation doesn't handle the rare "Spurious wakeup" to avoid performance degradation.
+
+--- Example in Java
+synchronized (obj) { 
+
+    while (<condition does not hold>) 
+
+        obj.wait(); 
+
+ 
+
+     ... // Perform action appropriate to condition 
+
+ }
